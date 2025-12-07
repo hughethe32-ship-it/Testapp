@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<link rel="manifest" href="manifest.json" />
+<script>
+window.addEventListener('load', () => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || window.navigator.standalone === true; // iOS check
+
+    if (!isStandalone) {
+        // Create full black overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'pwaOverlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.overflowY = 'auto';
+        overlay.style.backgroundColor = 'black';
+        overlay.style.color = 'white';
+        overlay.style.zIndex = 2147483647;
+        overlay.style.display = 'flex';
+        overlay.style.flexDirection = 'column';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.padding = '40px';
+        overlay.style.textAlign = 'center';
+        overlay.style.fontFamily = 'sans-serif';
+        overlay.style.pointerEvents = 'auto';
+        overlay.innerHTML = `
+            <p style="max-width: 600px; font-size: 18px; line-height: 1.6;">
+                To play this, you must install the app.<br><br>
+                To do so, open this in Safari, click the Share button above, click <b>Add to Home Screen</b> 
+                (or if you don’t see it, click the <b>More</b> option).<br><br>
+                Then, if the option is seen, check <b>Save as web app</b>, otherwise just save.<br><br>
+                Finally, open the new app on your Home Screen and you’ll be okay.
+            </p>
+        `;
+
+        document.body.appendChild(overlay);
+
+        // Mute all audio/video
+        document.querySelectorAll('audio, video').forEach(el => {
+            el.muted = true;
+        });
+    }
+});
+</script>
+
+<script>
+let selectedApp = null;
+
+window.addEventListener('load', () => {
+    showChoiceBox();
+});
+
+function showChoiceBox() {
+    const oldBox = document.getElementById('appChoiceBox');
+    if (oldBox) oldBox.remove();
+
+    const choiceBox = document.createElement('div');
+    choiceBox.id = 'appChoiceBox';
+    choiceBox.style.position = 'fixed';
+    choiceBox.style.top = '10%';
+    choiceBox.style.left = '5%';
+    choiceBox.style.transform = 'none';
+    choiceBox.style.background = 'white';
+    choiceBox.style.padding = '20px';
+    choiceBox.style.zIndex = 10000;
+    choiceBox.style.textAlign = 'center';
+    choiceBox.style.borderRadius = '8px';
+    choiceBox.style.fontFamily = 'sans-serif';
+    choiceBox.innerHTML = `
+        <p>When you press N, which app do you want opened?</p>
+        <button id="chooseNotability">Notability</button>
+        <button id="chooseCanvas">Canvas</button>
+        <button id="chooseChrome">Chrome</button>
+        <button id="chooseCalendar">Apple Calendar</button>
+        <button id="chooseGmail">Gmail</button>
+        <button id="chooseGarage">Garageband</button>
+        <button id="chooseDocs">Google Docs</button>
+        <button id="chooseSheets">Google Sheets</button>
+        <button id="chooseSlides">Google Slides</button>
+        <button id="chooseMyhomework">MyHomework</button>
+        <button id="chooseDesmos">Desmos</button>
+        <button id="chooseSpotify">Spotify</button>
+        <button id="chooseZoom">Zoom</button>
+        <button id="chooseTimes">NY Times</button>
+        <button id="chooseFirefox">Firefox</button>
+    `;
+    document.body.appendChild(choiceBox);
+
+    document.getElementById('chooseNotability').onclick = function() {
+        selectedApp = 'notability://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseCanvas').onclick = function() {
+        selectedApp = 'canvas-student://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseChrome').onclick = function() {
+        selectedApp = 'googlechrome://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseCalendar').onclick = function() {
+        selectedApp = 'calshow://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseGmail').onclick = function() {
+        selectedApp = 'googlegmail://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseGarage').onclick = function() {
+        selectedApp = 'garageband://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseDocs').onclick = function() {
+        selectedApp = 'googledocs://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseSheets').onclick = function() {
+        selectedApp = 'googleSheets://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseSlides').onclick = function() {
+        selectedApp = 'googleslides://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseMyhomework').onclick = function() {
+        selectedApp = 'myhomework://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseDesmos').onclick = function() {
+        selectedApp = 'desmos://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseSpotify').onclick = function() {
+        selectedApp = 'spotify://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseZoom').onclick = function() {
+        selectedApp = 'zoomus://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseTimes').onclick = function() {
+        selectedApp = 'nytimes://';
+        choiceBox.remove();
+    };
+    document.getElementById('chooseFirefox').onclick = function() {
+        selectedApp = 'firefox://';
+        choiceBox.remove();
+    };
+} 
+
+document.addEventListener('keydown', function(event) {
+    if (event.key.toLowerCase() === 'n') {
+        if (!selectedApp) {
+            showChoiceBox();
+            return;
+        }
+
+        let blackOverlay = document.getElementById('blackOverlay');
+        if (!blackOverlay) {
+            blackOverlay = document.createElement('div');
+            blackOverlay.id = 'blackOverlay';
+            blackOverlay.style.position = 'fixed';
+            blackOverlay.style.top = 0;
+            blackOverlay.style.left = 0;
+            blackOverlay.style.width = '100vw';
+            blackOverlay.style.height = '100vh';
+            blackOverlay.style.backgroundColor = 'black';
+            blackOverlay.style.zIndex = 9999;
+            blackOverlay.style.display = 'none';
+            document.body.appendChild(blackOverlay);
+        }
+
+        window.location.href = selectedApp;
+
+        setTimeout(function () {
+            blackOverlay.style.display = 'block';
+            document.querySelectorAll('audio, video').forEach(el => {
+                el.muted = true;
+            });
+        }, 250);
+    }
+
+    if (event.key.toLowerCase() === 'k') {
+        const blackOverlay = document.getElementById('blackOverlay');
+        if (blackOverlay) {
+            blackOverlay.remove();
+            document.querySelectorAll('audio, video').forEach(el => {
+                el.muted = false;
+            });
+        }
+    }
+
+    if (event.key.toLowerCase() === 'm') {
+        showChoiceBox();
+    }
+});
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js")
+      .then(reg => console.log("Service Worker registered:", reg.scope))
+      .catch(err => console.error("Service Worker failed:", err));
+  });
+}
+</script>
+
+<body>
+    <canvas id="screen"></canvas>
+    <div id="ui"></div>
+    <div id="transition-layer"></div>
+    <script type="module" src="main.bundle.js" defer></script>
+
+    <div id="loading-message">
+        🔊 UPDATE. I have added a lot more apps and also moved the question above, as you can see. 
+        Also, if you want to switch the app it goes to when you click N, just click M and the question will pop up. 
+        K will still unblack the screen. One more thing, the extra tracks button is currently in beta and does not fucntion, you can see the template, but other than that, there is nothing on it yet. I am workign with a few other people to get it working. Thank you.
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.getElementById('loading-message').style.display = 'none';
+        }, 15000);
+    </script>
+
+    <!-- ✅ Inject "Extra tracks" button that matches home screen style -->
+<script>
+(function(){
+  function findMenuButtons() {
+    const ui = document.getElementById("ui");
+    if (!ui) return [];
+    return Array.from(ui.querySelectorAll("button")).filter(b => {
+      const txt = (b.textContent || "").toLowerCase();
+      return /play|start|settings|quit/.test(txt);
+    });
+  }
+
+  function createIcon() {
+    const icon = document.createElement("canvas");
+    icon.width = 24;
+    icon.height = 24;
+    const ctx = icon.getContext("2d");
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(12, 12, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "white";
+    ctx.fillRect(8, 8, 8, 8);
+    icon.style.marginRight = "8px";
+    icon.style.verticalAlign = "middle";
+    icon.style.width = "1.2em";
+    icon.style.height = "1.2em";
+    return icon;
+  }
+
+  function insertExtraButton() {
+    // Don’t duplicate
+    if (document.getElementById("extraTracksBtn")) return;
+
+    const buttons = findMenuButtons();
+    if (!buttons.length) return;
+    const firstButton = buttons[0];
+
+    // Clone existing button so the same CSS & animations apply
+    const extra = firstButton.cloneNode(true);
+    extra.id = "extraTracksBtn";
+    extra.innerHTML = "";
+    extra.textContent = "";
+    extra.style.pointerEvents = "auto";
+
+    // Add icon + label
+    const icon = createIcon();
+    const label = document.createElement("span");
+    label.textContent = "Extra tracks";
+    label.style.verticalAlign = "middle";
+    extra.appendChild(icon);
+    extra.appendChild(label);
+
+    // Open external site
+    extra.onclick = () => window.open("https://polytrackfun.netlify.app", "_blank");
+
+    // Insert it on the left side (before the first button)
+    firstButton.parentNode.insertBefore(extra, firstButton);
+
+    // Match animation timing by copying inline styles
+    if (firstButton.style.animation) {
+      extra.style.animation = firstButton.style.animation;
+    }
+    if (firstButton.style.transition) {
+      extra.style.transition = firstButton.style.transition;
+    }
+
+    // Trigger animation by forcing reflow
+    extra.style.opacity = "0";
+    void extra.offsetWidth;
+    extra.style.opacity = "1";
+  }
+
+  const observer = new MutationObserver(() => {
+    const buttons = findMenuButtons();
+    const extra = document.getElementById("extraTracksBtn");
+    if (buttons.length && !extra) insertExtraButton();
+    else if (!buttons.length && extra) extra.remove();
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  window.addEventListener("load", () => {
+    setTimeout(insertExtraButton, 1000);
+  });
+})();
+</script>
+
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+</html>
